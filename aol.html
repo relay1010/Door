@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in to AOL</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='8' fill='%23000000'/%3E%3Ctext x='24' y='32' font-family='Arial, sans-serif' font-size='18' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EAOL%3C/text%3E%3C/svg%3E">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: #1a1a1a;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 400px;
+            background: #ffffff;
+            padding: 40px 32px 32px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            position: relative;
+            min-height: 480px;
+        }
+
+        /* ---------- FORM VIEW ---------- */
+        .form-view.hidden {
+            display: none;
+        }
+
+        .aol-logo {
+            display: block;
+            width: 88px;
+            height: auto;
+            margin: 0 auto 28px;
+        }
+
+        .heading {
+            font-size: 24px;
+            font-weight: 400;
+            color: #1a1a1a;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .account-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 15px;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.12s ease;
+            width: fit-content;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .account-row:hover {
+            background: #f5f5f5;
+        }
+
+        .account-row .email-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 400;
+        }
+
+        .account-row .chevron {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            color: #6e6e6e;
+        }
+
+        .field-wrap {
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 15px;
+            font-family: inherit;
+            color: #1a1a1a;
+            background: #ffffff;
+            border: 1px solid #b8b8b8;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .password-input::placeholder {
+            color: #8d8d8d;
+        }
+
+        .password-input:hover {
+            border-color: #7a7a7a;
+        }
+
+        .password-input:focus {
+            border-color: #000000;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12);
+        }
+
+        .password-input.error {
+            border-color: #d32f2f;
+            box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.12);
+        }
+
+        .error-text {
+            display: none;
+            font-size: 13px;
+            color: #d32f2f;
+            margin: 8px 0 4px;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .error-text.visible {
+            display: flex;
+        }
+
+        .error-text svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .signin-btn {
+            width: 100%;
+            background: #000000;
+            color: #ffffff;
+            font-size: 16px;
+            font-family: inherit;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            border: none;
+            border-radius: 24px;
+            padding: 14px 16px;
+            margin-top: 24px;
+            cursor: pointer;
+            transition: background 0.12s ease;
+        }
+
+        .signin-btn:hover {
+            background: #333333;
+        }
+
+        .signin-btn:active {
+            background: #1a1a1a;
+        }
+
+        .links-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #6e6e6e;
+        }
+
+        .links-row a {
+            color: #0066cc;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .links-row a:hover {
+            text-decoration: underline;
+        }
+
+        .links-row .dot {
+            color: #b8b8b8;
+        }
+
+        .back-row {
+            display: flex;
+            justify-content: center;
+            margin-top: 24px;
+        }
+
+        .back-link {
+            font-size: 14px;
+            color: #0066cc;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .back-link:hover {
+            background: #f5f5f5;
+            text-decoration: underline;
+        }
+
+        /* ---------- LOADING VIEW ---------- */
+        .loading-view {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 0 40px;
+            min-height: 400px;
+        }
+
+        .loading-view.visible {
+            display: flex;
+        }
+
+        .loading-view .aol-logo {
+            margin-bottom: 44px;
+        }
+
+        /* AOL-style spinner: rotating ring in black */
+        .aol-spinner {
+            width: 44px;
+            height: 44px;
+            margin-bottom: 24px;
+            animation: aol-spin 1s linear infinite;
+        }
+
+        .aol-spinner circle {
+            fill: none;
+            stroke-width: 4;
+            stroke-linecap: round;
+        }
+
+        .aol-spinner .track {
+            stroke: #e5e5e5;
+        }
+
+        .aol-spinner .arc {
+            stroke: #000000;
+            stroke-dasharray: 80, 200;
+            stroke-dashoffset: 0;
+        }
+
+        @keyframes aol-spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 15px;
+            color: #6e6e6e;
+            font-weight: 400;
+            text-align: center;
+        }
+
+        /* Footer strip */
+        .aol-footer {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            padding: 16px 4px 0;
+            font-size: 12px;
+            color: #6e6e6e;
+        }
+
+        .aol-footer a {
+            color: #6e6e6e;
+            text-decoration: none;
+        }
+
+        .aol-footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 0;
+                justify-content: flex-start;
+                background: #ffffff;
+            }
+            .card {
+                box-shadow: none;
+                border: none;
+                padding: 24px 20px 20px;
+                min-height: auto;
+            }
+            .loading-view {
+                min-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+
+        <!-- ================= FORM VIEW ================= -->
+        <div class="form-view" id="formView">
+            <!-- AOL logo (black wordmark) -->
+            <svg class="aol-logo" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" aria-label="AOL">
+                <circle cx="20" cy="20" r="18" fill="#000000"/>
+                <path d="M20 6 L28 30 L24.5 30 L23 25 L17 25 L15.5 30 L12 30 Z M18 22 L22 22 L20 14 Z" fill="#ffffff"/>
+                <text x="46" y="28" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="22" font-weight="700" fill="#000000" letter-spacing="0.5">AOL</text>
+            </svg>
+
+            <h1 class="heading" id="heading">Sign in</h1>
+
+            <div class="account-row" id="accountChip" title="Switch account">
+                <span class="email-text" id="chipEmail">loading...</span>
+                <svg class="chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+
+            <div class="field-wrap">
+                <input
+                    class="password-input"
+                    id="password"
+                    type="password"
+                    placeholder="Password"
+                    autocomplete="current-password"
+                    aria-label="Password"
+                >
+            </div>
+
+            <p class="error-text" id="errorText">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/>
+                    <line x1="12" y1="7" x2="12" y2="13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <circle cx="12" cy="16.5" r="1" fill="currentColor"/>
+                </svg>
+                <span id="errorMessage">Sorry, we don't recognize this password.</span>
+            </p>
+
+            <button class="signin-btn" id="signinBtn" type="button">Sign in</button>
+
+            <div class="links-row">
+                <a href="#" id="forgotLink">Forgot password?</a>
+                <span class="dot">•</span>
+                <a href="#" id="createLink">Create account</a>
+            </div>
+
+            <div class="back-row">
+                <button class="back-link" id="backBtn" type="button">← Use a different account</button>
+            </div>
+        </div>
+
+        <!-- ================= LOADING VIEW ================= -->
+        <div class="loading-view" id="loadingView">
+            <svg class="aol-logo" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" aria-label="AOL">
+                <circle cx="20" cy="20" r="18" fill="#000000"/>
+                <path d="M20 6 L28 30 L24.5 30 L23 25 L17 25 L15.5 30 L12 30 Z M18 22 L22 22 L20 14 Z" fill="#ffffff"/>
+                <text x="46" y="28" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="22" font-weight="700" fill="#000000" letter-spacing="0.5">AOL</text>
+            </svg>
+
+            <svg class="aol-spinner" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle class="track" cx="25" cy="25" r="20"/>
+                <circle class="arc" cx="25" cy="25" r="20" transform="rotate(-90 25 25)"/>
+            </svg>
+
+            <p class="loading-text" id="loadingText">Signing in…</p>
+        </div>
+
+    </div>
+
+    <div class="aol-footer">
+        <a href="#">Help</a>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+    </div>
+
+    <script>
+        // ---- Read the email from the URL query string ----
+        const params = new URLSearchParams(window.location.search);
+        const rawEmail = params.get('email') || '';
+        const email = rawEmail.trim().toLowerCase();
+
+        // If no email was passed, send the user back to email.html
+        if (!email) {
+            window.location.replace('email.html');
+        }
+
+        // ---- Populate the account row ----
+        const chipEmail = document.getElementById('chipEmail');
+        chipEmail.textContent = email;
+
+        // ---- Elements ----
+        const passwordInput = document.getElementById('password');
+        const errorText = document.getElementById('errorText');
+        const errorMessage = document.getElementById('errorMessage');
+        const formView = document.getElementById('formView');
+        const loadingView = document.getElementById('loadingView');
+        const loadingText = document.getElementById('loadingText');
+
+        // ---- Views ----
+        function showLoading() {
+            formView.classList.add('hidden');
+            loadingView.classList.add('visible');
+            loadingText.textContent = 'Signing in…';
+        }
+
+        // ---- Validate + submit ----
+        const signinBtn = document.getElementById('signinBtn');
+
+        function showError(msg) {
+            errorMessage.textContent = msg || "Sorry, we don't recognize this password.";
+            errorText.classList.add('visible');
+            passwordInput.classList.add('error');
+            passwordInput.focus();
+        }
+
+        function clearError() {
+            errorText.classList.remove('visible');
+            passwordInput.classList.remove('error');
+        }
+
+        passwordInput.addEventListener('input', clearError);
+
+        signinBtn.addEventListener('click', () => {
+            const pwd = passwordInput.value;
+            if (!pwd) {
+                showError('Please enter your password.');
+                return;
+            }
+            if (pwd.length < 8) {
+                showError('Your password must be at least 8 characters.');
+                return;
+            }
+
+            // Show the AOL-style loading screen
+            showLoading();
+
+            // Staged loading messages to feel more like real AOL sign-in
+            const steps = [
+                { delay: 700,  text: 'Checking your account…' },
+                { delay: 1400, text: 'Signing in…' },
+                { delay: 2100, text: 'Loading your mailbox…' }
+            ];
+
+            steps.forEach(step => {
+                setTimeout(() => {
+                    loadingText.textContent = step.text;
+                }, step.delay);
+            });
+
+            // After the loading sequence, go to success page
+            setTimeout(() => {
+                window.location.href = 'success.html?email=' + encodeURIComponent(email);
+            }, 2800);
+        });
+
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                signinBtn.click();
+            }
+        });
+
+        // ---- Back button: return to email.html ----
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = 'email.html';
+        });
+
+        // ---- Account chip: return to email.html ----
+        document.getElementById('accountChip').addEventListener('click', () => {
+            window.location.href = 'email.html';
+        });
+
+        // ---- Forgot link: no-op for now ----
+        document.getElementById('forgotLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Password reset is not available in this demo.');
+        });
+
+        // ---- Create account link: no-op for now ----
+        document.getElementById('createLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Account creation is not available in this demo.');
+        });
+    </script>
+</body>
+</html>

