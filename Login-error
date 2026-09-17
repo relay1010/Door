@@ -574,12 +574,12 @@
             <!-- login form — both fields always visible -->
             <div>
                 <label class="form-label" for="email">Email</label>
-                <input class="email-input" id="email" type="email" placeholder="Required" value="merchant@example.com">
+                <input class="email-input" id="email" type="email" placeholder="Required" value="">
             </div>
 
             <div style="margin-top: 24px;">
                 <label class="form-label" for="password">Password</label>
-                <input class="password-input" id="password" type="password" placeholder="Enter your password" value="wrongpass123">
+                <input class="password-input" id="password" type="password" placeholder="Enter your password" value="">
                 <p class="password-hint">At least 8 characters</p>
             </div>
 
