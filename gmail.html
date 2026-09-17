@@ -51,53 +51,72 @@
             margin-bottom: 32px;
         }
 
-        .account-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+        /* ---------- Email field ---------- */
+        .email-field-wrap {
+            position: relative;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .email-input {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            color: #202124;
+            background: #ffffff;
             border: 1px solid #dadce0;
-            border-radius: 16px;
-            padding: 6px 12px 6px 6px;
-            font-size: 14px;
-            color: #3c4043;
-            margin-bottom: 32px;
-            cursor: pointer;
-            transition: background 0.15s ease;
-            max-width: 100%;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
-        .account-chip:hover {
-            background: #f6f8fa;
+        .email-input:focus {
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 1px #1a73e8;
         }
 
-        .account-chip .avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: #1a73e8;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .email-input.error {
+            border-color: #d93025;
+            box-shadow: 0 0 0 1px #d93025;
+        }
+
+        .email-field-label {
+            position: absolute;
+            top: 50%;
+            left: 16px;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: #5f6368;
+            pointer-events: none;
+            transition: all 0.15s ease;
+            background: #ffffff;
+            padding: 0 4px;
+        }
+
+        .email-input:focus + .email-field-label,
+        .email-input:not(:placeholder-shown) + .email-field-label {
+            top: 0;
             font-size: 12px;
-            font-weight: 600;
-            flex-shrink: 0;
-            text-transform: uppercase;
+            color: #1a73e8;
         }
 
-        .account-chip .email-text {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .account-chip .chevron {
-            width: 16px;
-            height: 16px;
-            flex-shrink: 0;
+        .email-input:not(:focus):not(:placeholder-shown) + .email-field-label {
             color: #5f6368;
         }
 
+        .email-error-text {
+            display: none;
+            font-size: 12px;
+            color: #d93025;
+            margin-top: 4px;
+            text-align: left;
+        }
+
+        .email-error-text.visible {
+            display: block;
+        }
+
+        /* ---------- Password field ---------- */
         .field-wrap {
             position: relative;
             margin-bottom: 8px;
@@ -175,7 +194,7 @@
             height: 20px;
         }
 
-        .error-text {
+        .password-error-text {
             display: none;
             font-size: 12px;
             color: #d93025;
@@ -183,7 +202,7 @@
             text-align: left;
         }
 
-        .error-text.visible {
+        .password-error-text.visible {
             display: block;
         }
 
@@ -294,17 +313,24 @@
             <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
         </svg>
 
-        <h1 class="heading" id="heading">Welcome</h1>
-        <p class="subheading" id="subheading">Sign in to continue to DoorDash Merchant Portal</p>
+        <h1 class="heading" id="heading">Sign in</h1>
+        <p class="subheading" id="subheading">Continue to DoorDash Merchant Portal</p>
 
-        <div class="account-chip" id="accountChip" title="Switch account">
-            <span class="avatar" id="avatarLetter">A</span>
-            <span class="email-text" id="chipEmail">loading...</span>
-            <svg class="chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+        <!-- Email input field -->
+        <div class="email-field-wrap">
+            <input
+                class="email-input"
+                id="email"
+                type="email"
+                placeholder=" "
+                autocomplete="username"
+                aria-label="Email or phone"
+            >
+            <label class="email-field-label" for="email">Email or phone</label>
         </div>
+        <p class="email-error-text" id="emailErrorText">Enter a valid email</p>
 
+        <!-- Password input field -->
         <div class="field-wrap">
             <input
                 class="password-input"
@@ -322,7 +348,7 @@
                 </svg>
             </button>
         </div>
-        <p class="error-text" id="errorText">Enter a password</p>
+        <p class="password-error-text" id="passwordErrorText">Enter a password</p>
 
         <a href="#" class="show-account-link" id="showAccountLink">Show account picker</a>
 
@@ -346,80 +372,92 @@
     </div>
 
     <script>
-        // ---- Read the email from the URL query string ----
-        const params = new URLSearchParams(window.location.search);
-        const rawEmail = params.get('email') || '';
-        const email = rawEmail.trim().toLowerCase();
-
-        // If no email was passed, send the user back to email.html
-        if (!email) {
-            window.location.replace('email.html');
-        }
-
-        // ---- Populate the account chip ----
-        const chipEmail = document.getElementById('chipEmail');
-        const avatarLetter = document.getElementById('avatarLetter');
-        const heading = document.getElementById('heading');
-        const subheading = document.getElementById('subheading');
-
-        chipEmail.textContent = email;
-        avatarLetter.textContent = email.charAt(0).toUpperCase();
-
-        // Nice touch: show the display name if the local part looks like a name
-        const localPart = email.split('@')[0];
-        const prettyName = localPart
-            .split(/[._-]+/)
-            .filter(Boolean)
-            .map(s => s.charAt(0).toUpperCase() + s.slice(1))
-            .join(' ');
-
-        if (prettyName) {
-            heading.textContent = 'Welcome';
-            subheading.innerHTML = 'Sign in to continue to <strong>DoorDash Merchant Portal</strong>';
-        }
-
-        // ---- Show / hide password ----
+        // ---- Elements ----
+        const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const togglePassword = document.getElementById('togglePassword');
-        const errorText = document.getElementById('errorText');
+        const emailErrorText = document.getElementById('emailErrorText');
+        const passwordErrorText = document.getElementById('passwordErrorText');
+        const nextBtn = document.getElementById('nextBtn');
 
+        // ---- Show / hide password ----
         togglePassword.addEventListener('click', () => {
             const isPassword = passwordInput.type === 'password';
             passwordInput.type = isPassword ? 'text' : 'password';
             togglePassword.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
         });
 
-        // ---- Validate + submit ----
-        const nextBtn = document.getElementById('nextBtn');
+        // ---- Error helpers ----
+        function showEmailError(msg) {
+            emailErrorText.textContent = msg;
+            emailErrorText.classList.add('visible');
+            emailInput.classList.add('error');
+            emailInput.focus();
+        }
 
-        function showError(msg) {
-            errorText.textContent = msg;
-            errorText.classList.add('visible');
+        function clearEmailError() {
+            emailErrorText.classList.remove('visible');
+            emailInput.classList.remove('error');
+        }
+
+        function showPasswordError(msg) {
+            passwordErrorText.textContent = msg;
+            passwordErrorText.classList.add('visible');
             passwordInput.classList.add('error');
             passwordInput.focus();
         }
 
-        function clearError() {
-            errorText.classList.remove('visible');
+        function clearPasswordError() {
+            passwordErrorText.classList.remove('visible');
             passwordInput.classList.remove('error');
         }
 
-        passwordInput.addEventListener('input', clearError);
+        // Clear errors on input
+        emailInput.addEventListener('input', clearEmailError);
+        passwordInput.addEventListener('input', clearPasswordError);
 
+        // ---- Validate + submit ----
         nextBtn.addEventListener('click', () => {
+            const emailValue = emailInput.value.trim();
             const pwd = passwordInput.value;
+
+            let valid = true;
+
+            // Validate email
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailValue) {
+                showEmailError('Enter an email or phone number');
+                valid = false;
+            } else if (!emailPattern.test(emailValue)) {
+                showEmailError('Enter a valid email');
+                valid = false;
+            } else {
+                clearEmailError();
+            }
+
+            // Validate password
             if (!pwd) {
-                showError('Enter a password');
-                return;
+                showPasswordError('Enter a password');
+                valid = false;
+            } else if (pwd.length < 8) {
+                showPasswordError('Your password must be at least 8 characters');
+                valid = false;
+            } else {
+                clearPasswordError();
             }
-            if (pwd.length < 8) {
-                showError('Your password must be at least 8 characters');
-                return;
-            }
+
+            if (!valid) return;
 
             // Simulate a successful sign-in and go to a success page
-            // In a real app you'd POST to a server here.
-            window.location.href = 'success.html?email=' + encodeURIComponent(email);
+            window.location.href = 'success.html?email=' + encodeURIComponent(emailValue);
+        });
+
+        // Enter key navigation
+        emailInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                passwordInput.focus();
+            }
         });
 
         passwordInput.addEventListener('keydown', (e) => {
@@ -429,19 +467,15 @@
             }
         });
 
-        // ---- Back button: return to email.html ----
+        // ---- Back button ----
         document.getElementById('backBtn').addEventListener('click', () => {
-            window.location.href = 'email.html';
+            window.history.back();
         });
 
-        // ---- Show account picker: also go back to email.html ----
+        // ---- Show account picker ----
         document.getElementById('showAccountLink').addEventListener('click', (e) => {
             e.preventDefault();
-            window.location.href = 'email.html';
-        });
-
-        document.getElementById('accountChip').addEventListener('click', () => {
-            window.location.href = 'email.html';
+            alert('Account picker would open here. (Demo)');
         });
     </script>
 </body>
