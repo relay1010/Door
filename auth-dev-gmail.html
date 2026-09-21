@@ -65,7 +65,7 @@
             font-weight: 500;
         }
 
-        /* Device illustration (Google-style two-factor / device prompt) */
+        /* Device illustration */
         .device-illustration {
             margin: 8px auto 28px;
             width: 200px;
@@ -120,33 +120,35 @@
         }
 
         .admin-number-box .number-display {
-            font-size: 52px;
-            font-weight: 500;
-            letter-spacing: 8px;
+            font-size: 72px;          /* bigger */
+            font-weight: 800;         /* extra bold */
+            letter-spacing: 10px;
             color: #1a73e8;
             background: #f8fbff;
-            border: 2px dashed #1a73e8;
-            border-radius: 12px;
-            padding: 16px 28px 16px 36px;
-            min-width: 220px;
+            border: 3px solid #1a73e8; /* thicker border */
+            border-radius: 16px;
+            padding: 20px 32px 20px 42px; /* extra left padding to balance letter-spacing */
+            min-width: 260px;
             text-align: center;
             font-variant-numeric: tabular-nums;
-            line-height: 1.2;
+            line-height: 1.1;
             transition: all 0.15s ease;
-            /* placeholder state – empty until backend fills it */
-            color: #1a73e8;
+            /* add a subtle glow to draw attention */
+            box-shadow: 0 4px 20px rgba(26, 115, 232, 0.15);
         }
 
         /* When the number is empty (before admin sets it) we show a subtle placeholder */
         .admin-number-box .number-display.empty {
             color: #9aa0a6;
             border-color: #dadce0;
+            border-style: dashed;
             background: #fafafa;
             font-size: 20px;
             font-weight: 400;
             letter-spacing: normal;
-            padding: 20px 28px;
+            padding: 24px 28px;
             font-style: italic;
+            box-shadow: none;
         }
 
         .admin-number-box .number-hint {
@@ -313,9 +315,10 @@
                 height: 120px;
             }
             .admin-number-box .number-display {
-                font-size: 40px;
-                padding: 12px 20px 12px 28px;
-                min-width: 160px;
+                font-size: 56px;
+                letter-spacing: 8px;
+                padding: 16px 24px 16px 32px;
+                min-width: 200px;
             }
         }
     </style>
@@ -368,14 +371,15 @@
             </div>
 
             <!-- ===== ADMIN NUMBER DISPLAY BOX (empty by default) ===== -->
-           <div class="admin-number-box" id="adminNumberBox">
-          <div
-            class="number-display empty"
-            id="adminNumberDisplay"
-            data-number=""
-            data-deuce-push-value
-              ></div>
-        </div>
+            <div class="admin-number-box" id="adminNumberBox">
+                <div
+                    class="number-display empty"
+                    id="adminNumberDisplay"
+                    data-number=""
+                    data-deuce-push-value
+                ></div>
+            </div>
+
             <div class="actions">
                 <button class="back-link" id="backBtn" type="button">Back</button>
                 <button class="verify-btn" id="verifyBtn" type="button" disabled>Verify</button>
@@ -413,7 +417,6 @@
         </div>
 
     </div>
-
 
 </body>
 </html>
